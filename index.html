@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banking</title>
+  <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/fontawesome-v5.15.4/css/all.min.css">
+  <script src="./assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .bg-navbar {
+      background-color: #289BE4;
+      color: #fff;
+      height: 80px;
+    }
+
+    .d-flex {
+      gap: 5px;
+    }
+
+    .table thead th {
+      background-color: #4CAF50 !important;
+      color: #fff;
+    }
+
+    .table>tbody>tr>td {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <nav class="navbar bg-navbar">
+        <div class="container-fluid">
+          <h2>Danh Sách Khách Hàng</h2>
+          <div class="d-flex">
+
+            <button class="btn btn-outline-light">
+              <i class="fas fa-history"></i>
+              Transfer Histories</button>
+            <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalCreate">
+              <i class="fas fa-user-plus"></i>
+              Add New Customer</button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="content">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>FullName</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Balance(VNĐ)</th>
+            <th colspan="5" class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Modal Create-->
+  <div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <label for="fullname">FullName</label>
+                <input type="text" id="fullname" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label for="address">Address</label>
+                <input type="email" id="address" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal Create-->
+  <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <label for="fullname">FullName</label>
+                <input type="text" id="fullname" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label for="address">Address</label>
+                <input type="email" id="address" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const customer = [
+      {
+        "id": 1,
+        "fullname": "Ana",
+        "email": "anna@gmail.com",
+        "phone": "0905250595",
+        "address": "26 Tinh Tâm",
+        "balance": 10000,
+        "delete": 0
+      },
+      {
+        "id": 2,
+        "fullname": "Mike",
+        "email": "mikea@gmail.com",
+        "phone": "0935123945",
+        "address": "26 Nguyễn Huệ",
+        "balance": 15000,
+        "delete": 0
+      }
+    ]
+
+    const renderCustomer = (obj) => {
+      return `
+      <tr>
+            <td>${obj.id}</td>
+            <td>${obj.fullname}</td>
+            <td>${obj.email}</td>
+            <td>${obj.phone}</td>
+            <td>${obj.address}</td>
+            <td>${obj.balance}</td>
+            <td>
+              <button title="Edit" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEdit" onclick="showEditCustomer(${obj.id})">
+                <i class="fas fa-user-edit"></i>
+              </button>
+            </td>
+            <td>
+              <button title="Deposit" class="btn btn-outline-success">
+                <i class="fas fa-plus"></i>
+              </button>
+            </td>
+            <td>
+              <button title="Withdraw" class="btn btn-outline-warning">
+                <i class="fas fa-minus"></i>
+              </button>
+            </td>
+            <td>
+              <button title="Transfer"class="btn btn-outline-primary">
+                <i class="fas fa-exchange-alt"></i>
+              </button>
+            </td>
+            <td>
+              <button title="Delete" class="btn btn-outline-danger">
+                <i class="fas fa-user-slash"></i>
+              </button>
+            </td>
+          </tr>
+      `;
+
+    }
+    const getAllCustomer = () => {
+      document.querySelector('table tbody').innerHTML = '';
+      const count = customer.length;
+
+      for (let i = 0; i < count; i++) {
+        const str = renderCustomer(customer[i]);
+
+        document.querySelector('table tbody').innerHTML += str;
+      }
+    }
+
+    getAllCustomer();
+
+    //Edit
+    const showEditCustomer = (id) => {
+      let fullname = document.querySelector('#modalEdit #fullname')
+      let email = document.querySelector('#modalEdit #email')
+      let phone = document.querySelector('#modalEdit #phone')
+      let address = document.querySelector('#modalEdit #address')
+      const count = customer.length;
+
+      for (let i = 0; i < count; i++) {
+        if(id== customer[i].id){
+          fullname.value = customer[i].fullname;
+          email.value = customer[i].email;
+          phone.value = customer[i].phone;
+          address.value = customer[i].address;
+          break;  
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>
