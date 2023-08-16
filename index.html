@@ -137,7 +137,7 @@
 
   <!-- Edit Modal -->
   <div class="modal fade" id="modalUpdate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">Modal Update</h1>
@@ -146,25 +146,33 @@
         <div class="modal-body">
           <form>
             <div class="row mb-3">
-              <input type="hidden" id="idUp">
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-lg-6">
+              <div class="col-lg-4">
                 <label for="fullNameUp">FullName</label>
                 <input type="text" id="fullNameUp" class="form-control">
               </div>
-              <div class="col-lg-6">
+              <div class="col-lg-4">
                 <label for="emailUp">Email</label>
                 <input type="email" id="emailUp" class="form-control">
               </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-lg-6">
+              <div class="col-lg-4">
                 <label for="phoneUp">Phone</label>
                 <input type="tel" id="phoneUp" class="form-control">
               </div>
-              <div class="col-lg-6">
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-3">
+                <label for="provinceUp">Province</label>
+                <select name="" id="provinceUp" class="form-select"></select>
+              </div>
+              <div class="col-lg-3">
+                <label for="districtUp">District</label>
+                <select name="" id="districtUp" class="form-select"></select>
+              </div>
+              <div class="col-lg-3">
+                <label for="wardUp">Ward</label>
+                <select name="" id="wardUp" class="form-select"></select>
+              </div>
+              <div class="col-lg-3">
                 <label for="addressUp">Address</label>
                 <input type="text" id="addressUp" class="form-control">
               </div>
@@ -339,18 +347,33 @@
     page.elements.addressCre = $('#addressCre');
     page.elements.btnCreate = $('#btnCreate');
 
+    page.elements.edit = $('edit');
+    page.elements.modalUpdate = $('#modalUpdate');
+    page.elements.fullNameUp = $('#fullNameUp');
+    page.elements.emailUp = $('#emailUp');
+    page.elements.phoneUp = $('#phoneUp');
+    page.elements.balanceUp = $('#balanceUp');
+    page.elements.provinceUp = $('#provinceUp');
+    page.elements.districtUp = $('#districtUp');
+    page.elements.wardUp = $('#wardUp');
+    page.elements.addressUp = $('#addressUp');
+    page.elements.btnUpdate = $('#btnUpate');
+
 
     page.commands.getAllProvinces = () => {
       $.ajax({
         url: 'https://vapi.vnappmob.com/api/province/'
       })
         .done((data) => {
+
           const provinces = data.results;
           const provinceId = provinces[0].province_id;
 
           $.each(provinces, (index, item) => {
             const str = renderOptionProvince(item);
+
             page.elements.provinceCre.append(str);
+            page.elements.provinceUp.append(str);
           })
 
           getAllDistrictsByProvinceId(provinceId);
@@ -373,6 +396,7 @@
           $.each(districts, (index, item) => {
             const str = renderOptionDistrict(item);
             $('#districtCre').append(str);
+
           })
 
           getAllWardsByDistrictId(districtId);
@@ -481,22 +505,75 @@
           })
 
           $('.edit').on('click', function () {
+
             const id = $(this).data('id');
             $.ajax({
-              url: url + '/' + id
+              url: page.urls.getAllCustomers + '/' + id
             })
               .done((data) => {
                 if (Object.keys(data).length > 0) {
-
-                  $.each(data, (k, v) => {
-                    $('#' + k + 'Up').val(v);
+                  $('#idUp').val(data.id);
+                  $('#fullNameUp').val(data.fullName);
+                  $('#emailUp').val(data.email);
+                  $('#phoneUp').val(data.phone);
+                  //province
+                  let provinceNameValue = data.locationRegion.provinceName;
+                  $('#provinceUp option').each(function () {
+                    if ($(this).text() === provinceNameValue) {
+                      $(this).prop('selected', true);
+                      return false; // Dừng vòng lặp khi tìm thấy giá trị được chọn
+                    }
+                  });
+                  //district
+                  $.ajax({
+                    url: 'https://vapi.vnappmob.com/api/province/district/' + data.locationRegion.provinceId
                   })
+                    .done((data) => {
+                      const districts = data.results;
+                      const districtId = districts[0].district_id;
 
-                  // $('#fullNameUp').val(data.fullName);
-                  // $('#emailUp').val(data.email);
-                  // $('#phoneUp').val(data.phone);
-                  // $('#addressUp').val(data.address);
+                      $('#districtUp').empty();
 
+                      $.each(districts, (index, item) => {
+                        if (districtId == item.district_Id) {
+                          const str = renderOptionDistrict(item);
+                          $('#districtUp').append(str);
+                        }
+                      })
+                      $('#districtUp').val(districtId);
+                      getAllWardsByDistrictId(districtId);
+                    })
+                    .fail((error) => {
+                      console.log(error);
+                    })
+                  var districtNameValue = data.locationRegion.districtName;
+                  $('#districtNameUp').val(districtNameValue);
+
+                  //ward
+                  $.ajax({
+                    url: 'https://vapi.vnappmob.com/api/province/ward/' + data.locationRegion.provinceId
+                  })
+                    .done((data) => {
+                      const wards = data.results;
+
+                      $('#wardUp').empty();
+
+                      $.each(wards, (index, item) => {
+                        const str = renderOptionWard(item);
+                        $('#wardUp').append(str);
+                      })
+                      let wardId = data.locationRegion.wardId;
+                      $('#wardUp').val(wardId); // Đặt giá trị của wardId đã chọn
+
+
+                    })
+                    .fail((error) => {
+                      console.log(error);
+                    })
+                  var wardNameValue = data.locationRegion.wardName;
+                  $('#wardNameUp').val(wardNameValue);
+
+                  $('#addressUp').val(data.locationRegion.address);
                   $('#modalUpdate').modal('show');
                 }
                 else {
@@ -506,7 +583,7 @@
               .fail((error) => {
                 console.log(error);
               })
-
+            page.commands.getAllCustomers();
           })
 
         }, error: function () {
@@ -639,6 +716,10 @@
       page.elements.btnCreate.on('click', () => {
         page.commands.handleCreateCustomer();
       })
+
+      page.elements.edit.on('click', () => {
+        page.commands.modalUpdate.modal('show');
+      })
     }
 
     page.loadData = () => {
@@ -651,6 +732,65 @@
       page.loadData();
 
       page.initializeControlEvent();
+    })
+
+
+
+    //Edit
+
+
+
+
+
+    const getAllDistrictsByProvinceIdUp = (provinceId) => {
+      $.ajax({
+        url: 'https://vapi.vnappmob.com/api/province/district/' + provinceId
+      })
+        .done((data) => {
+          const districts = data.results;
+          const districtId = districts[0].district_id;
+
+          $('#districtUp').empty();
+
+          $.each(districts, (index, item) => {
+            const str = renderOptionDistrict(item);
+            $('#districtUp').append(str);
+          })
+
+          getAllWardsByDistrictIdUp(districtId);
+        })
+        .fail((error) => {
+          console.log(error);
+        })
+    }
+
+    const getAllWardsByDistrictIdUp = (districtId) => {
+      $.ajax({
+        url: 'https://vapi.vnappmob.com/api/province/ward/' + districtId
+      })
+        .done((data) => {
+          const wards = data.results;
+
+          $('#wardUp').empty();
+
+          $.each(wards, (index, item) => {
+            const str = renderOptionWard(item);
+            $('#wardUp').append(str);
+          })
+        })
+        .fail((error) => {
+          console.log(error);
+        })
+    }
+
+    $('#provinceUp').on('change', function () {
+      const provinceId = $(this).val();
+      getAllDistrictsByProvinceIdUp(provinceId);
+    })
+
+    $('#districtUp').on('change', function () {
+      const districtId = $(this).val();
+      getAllWardsByDistrictIdUp(districtId);
     })
 
     // const strBody = $('#tbCustomerBody')
